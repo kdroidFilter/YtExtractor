@@ -61,8 +61,21 @@ kotlin {
         }
         nativeMain.dependencies {
             implementation(libs.ktor.client.cio)
+        }
+        linuxMain.dependencies {
+            implementation(libs.ktor.client.curl)
 
         }
+        mingwMain.dependencies {
+            implementation(libs.ktor.client.winhttp)
+        }
+        macosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+        }
+
 
     }
 

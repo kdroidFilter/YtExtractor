@@ -1,7 +1,7 @@
 package com.kdroid.ytextractor
 
 import io.ktor.client.engine.*
-import io.ktor.client.engine.cio.*
+import io.ktor.client.engine.curl.*
 
 actual val httpClientEngine: HttpClientEngine
-    get() = CIO.create()
+    get() = Curl.create()
