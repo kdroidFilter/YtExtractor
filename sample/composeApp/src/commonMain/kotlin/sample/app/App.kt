@@ -11,12 +11,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.kdroid.ytextractor.VideoInfo
 import com.kdroid.ytextractor.YouTubeClient
 import kotlinx.coroutines.launch
-import sh.calvin.autolinktext.rememberAutoLinkText
 
 @Composable
 fun App() {
@@ -38,7 +36,8 @@ fun YouTubeExtractorUI() {
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxHeight()
+            .widthIn(max = 800.dp)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -58,13 +57,13 @@ fun YouTubeExtractorUI() {
         Button(
             onClick = {
                 coroutineScope.launch {
-                    try {
-                        errorMessage = ""
-                        val info = client.getVideoFormats(youtubeUrl)
-                        videoInfo = info
-                    } catch (e: Exception) {
-                        errorMessage = "Error: ${e.message}"
+                    errorMessage = ""
+                    val info = client.getVideoFormats(youtubeUrl)
+                    if (info == null) {
+                        errorMessage = "Unable to retrieve video information."
                         videoInfo = null
+                    } else {
+                        videoInfo = info
                     }
                 }
             },
@@ -97,7 +96,6 @@ fun YouTubeExtractorUI() {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 info.formats.forEachIndexed { index, format ->
-
                     item {
                         Text("Itag: ${format.itag}")
                     }
@@ -108,18 +106,13 @@ fun YouTubeExtractorUI() {
                         Text("QualityLabel: ${format.qualityLabel}")
                     }
                     item {
-                        Text(
-                            "URL: ${
-                                format.url?.let {
-                                    AnnotatedString.rememberAutoLinkText(
-                                        it.trimMargin()
-                                    )
-                                } ?: "Unavailable"
-                            }")
+                        ClickableUrl(format.url)
                     }
-
                 }
             }
         }
     }
 }
+
+@Composable
+expect fun ClickableUrl(url: String?)

@@ -48,6 +48,7 @@ kotlin {
         jvmMain.dependencies {
             implementation(libs.kotlinx.coroutines.swing)
             implementation(libs.ktor.client.cio)
+            implementation(libs.slf4j.simple)
 
         }
         jsMain.dependencies {

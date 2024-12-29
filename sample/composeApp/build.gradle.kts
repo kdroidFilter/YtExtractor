@@ -37,16 +37,6 @@ kotlin {
         }
         binaries.executable()
     }
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach {
-        it.binaries.framework {
-            baseName = "ComposeApp"
-            isStatic = true
-        }
-    }
 
     sourceSets {
         commonMain.dependencies {
@@ -54,7 +44,6 @@ kotlin {
             implementation(compose.foundation)
             implementation(libs.material3)
             implementation(project(":ytextractor"))
-            implementation("sh.calvin.autolinktext:autolinktext:2.0.0")
 
         }
 
