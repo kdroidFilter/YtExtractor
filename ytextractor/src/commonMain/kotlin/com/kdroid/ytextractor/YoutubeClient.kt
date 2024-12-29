@@ -22,7 +22,7 @@ expect fun getHttpClient(): HttpClient
  */
 class YouTubeClient(
     val client : HttpClient = getHttpClient(),
-    val clientType: ClientType = ClientType.ANDROID
+    val clientType: ClientType = ClientType.WEB
 ) {
     private val json = Json { ignoreUnknownKeys = true }
     /**
@@ -96,6 +96,8 @@ class YouTubeClient(
                 header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                 setBody(requestBody.toString())
             }
+
+            println(response.bodyAsText())
 
             if (!response.status.isSuccess()) {
                 throw IllegalStateException("HTTP error: ${response.status.value}")

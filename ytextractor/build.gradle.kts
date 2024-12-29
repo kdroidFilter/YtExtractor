@@ -1,11 +1,13 @@
 @file:OptIn(ExperimentalWasmDsl::class)
 
+import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.multiplatform)
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.vannitktech.maven.publish)
 }
 
 group = "com.kdroid.ytextractor"
@@ -76,6 +78,19 @@ kotlin {
         }
         jsMain {
             dependsOn(jsWasmJsMain)
+            dependencies {
+                api(npm("browserify-zlib", "0.2.0"))
+                api(npm("stream-browserify", "3.0.0"))
+                api(npm("crypto-browserify", "3.12.1"))
+                api(npm("stream-http", "3.2.0"))
+                api(npm("https-browserify", "1.0.0"))
+                api(npm("buffer", "6.0.3"))
+                api(npm("url", "0.11.4"))
+                api(npm("utf-8-validate", "5.0.7"))
+                api(npm("bufferutil", "4.0.7"))
+                api(npm("node-gyp-build", "4.8.4"))
+                api(npm("path-browserify", "1.0.1"))
+            }
         }
         wasmJsMain {
             dependsOn(jsWasmJsMain)
@@ -131,4 +146,42 @@ android {
     defaultConfig {
         minSdk = 21
     }
+}
+
+mavenPublishing {
+    coordinates(
+        groupId = "io.github.kdroidfilter",
+        artifactId = "ytextractor",
+        version = version.toString()
+    )
+
+    pom {
+        name.set("YouTube Extractor")
+        description.set("YTExtractor is a Kotlin Multiplatform library for extracting download links of YouTube videos from a URL. It supports major platforms and enables efficient and fast extraction of metadata and video links.")
+        inceptionYear.set("2024")
+        url.set("https://github.com/kdroidFilter/YTExtractor")
+
+        licenses {
+            license {
+                name.set("MIT")
+                url.set("https://opensource.org/licenses/MIT")
+            }
+        }
+
+        developers {
+            developer {
+                id.set("kdroidfilter")
+                name.set("Elyahou Hadass")
+                email.set("elyahou.hadass@gmail.com")
+            }
+        }
+
+        scm {
+            url.set("https://github.com/kdroidFilter/YTExtractor")
+        }
+    }
+
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+
+    signAllPublications()
 }

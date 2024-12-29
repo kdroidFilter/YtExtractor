@@ -54,6 +54,11 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
         }
+        wasmJsMain.dependencies {
+//            implementation(npm("@ffmpeg/ffmpeg", "0.12.13"))
+//            implementation(npm("@ffmpeg/core", "0.12.1"))
+//            implementation(npm("@ffmpeg/util", "0.12.1"))
+        }
 
     }
 }

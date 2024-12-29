@@ -3,10 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KotlinProject</title>
-    <link type="text/css" rel="stylesheet" href="styles.css">
-    <script type="application/javascript" src="composeApp.js"></script>
+    <title>YouTube Video Info</title>
+    <script src="lib.js" defer></script>
+    <script defer>
+        async function fetchVideoInfo() {
+            const urlInput = document.getElementById("youtube-url").value;
+            const output = document.getElementById("output");
+
+            try {
+                const client = new YouTubeClient(ClientType.WEB);
+                const videoInfo = await client.getVideoFormats(urlInput);
+
+                if (videoInfo) {
+                    output.textContent = JSON.stringify(videoInfo, null, 2);
+                } else {
+                    output.textContent = "Unable to fetch video information. Please check the URL.";
+                }
+            } catch (error) {
+                output.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
 </head>
 <body>
+    <h1>YouTube Video Info Fetcher</h1>
+    <label for="youtube-url">Enter YouTube URL:</label>
+    <input type="text" id="youtube-url" placeholder="https://www.youtube.com/watch?v=example">
+    <button onclick="fetchVideoInfo()">Fetch Video Info</button>
+
+    <h2>Video Information:</h2>
+    <pre id="output" style="background: #f4f4f4; padding: 10px; border: 1px solid #ddd;"></pre>
 </body>
 </html>
