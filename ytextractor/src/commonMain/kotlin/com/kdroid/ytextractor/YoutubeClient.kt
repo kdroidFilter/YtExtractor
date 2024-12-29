@@ -11,7 +11,6 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonObject
 
-
 expect fun getHttpClient(): HttpClient
 
 /**
@@ -22,46 +21,62 @@ expect fun getHttpClient(): HttpClient
  */
 class YouTubeClient(
     val client : HttpClient = getHttpClient(),
-    val clientType: ClientType = ClientType.WEB
+    val clientType: ClientType = ClientType.IOS
 ) {
-    private val json = Json { ignoreUnknownKeys = true }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        encodeDefaults = true
+    }
+
     /**
      * Retrieve the list of video formats (with URL) from a YouTube URL
      */
     suspend fun getVideoFormats(youtubeUrl: String): VideoInfo? {
+        println("[getVideoFormats] Start processing URL: $youtubeUrl")
         return try {
             // 1) Extract the ID
             val videoId = extractVideoID(youtubeUrl)
+            println("[getVideoFormats] Extracted video ID: $videoId")
                 ?: return null  // or generate a message / log, etc.
 
             // 2) Fetch the response via Innertube
-            val playerResponse = getInnertubePlayerResponse(videoId)
+            val playerResponse = videoId?.let { getInnertubePlayerResponse(it) }
+            println("[getVideoFormats] Retrieved player response: $playerResponse")
 
             // 3) Check the status
             val status = playerResponse?.playabilityStatus?.status ?: "ERROR"
+            println("[getVideoFormats] Playability status: $status")
             if (status != "OK") {
                 // Log the error or return null
+                println("[getVideoFormats] Invalid playability status: $status")
                 return null
             }
 
             // 4) Retrieve streamingData and videoDetails
             val streamingData = playerResponse?.streamingData ?: return null
             val videoDetails = playerResponse.videoDetails ?: return null
+            println("[getVideoFormats] Retrieved streaming data and video details.")
 
             // 5) Concatenate formats
             val rawFormats = streamingData.formats + streamingData.adaptiveFormats
+            println("[getVideoFormats] Concatenated formats: ${rawFormats.size} formats found.")
 
             // 6) Build the final structure
             val durationSeconds = (videoDetails.lengthSeconds ?: "0").toLongOrNull() ?: 0L
-            VideoInfo(
-                videoId = videoDetails.videoId ?: videoId,
-                title = videoDetails.title ?: "Unknown title",
-                author = videoDetails.author ?: "Unknown author",
-                durationSeconds = durationSeconds,
-                formats = rawFormats
-            )
+            println("[getVideoFormats] Video duration: $durationSeconds seconds.")
+
+            (videoDetails.videoId ?: videoId)?.let {
+                VideoInfo(
+                    videoId = it,
+                    title = videoDetails.title ?: "Unknown title",
+                    author = videoDetails.author ?: "Unknown author",
+                    durationSeconds = durationSeconds,
+                    formats = rawFormats
+                ).also { println("[getVideoFormats] Built VideoInfo object: $it") }
+            }
         } catch (e: Exception) {
-            // In case of an exception (bad URL, network issue, etc.), return null
+            println("[getVideoFormats] Exception occurred: ${e.message}")
             null
         }
     }
@@ -71,7 +86,8 @@ class YouTubeClient(
      * We send a JSON according to the Innertube protocol (clientName, clientVersion, etc.).
      * We also add headers similar to the Go library, along with the CONSENT cookie.
      */
-    suspend fun getInnertubePlayerResponse(videoId: String): YoutubePlayerResponse? {
+    private suspend fun getInnertubePlayerResponse(videoId: String): YoutubePlayerResponse? {
+        println("[getInnertubePlayerResponse] Start fetching player response for video ID: $videoId")
         try {
             val innertubeKey = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
             val url = "https://www.youtube.com/youtubei/v1/player?key=$innertubeKey"
@@ -89,6 +105,8 @@ class YouTubeClient(
                 }
             }
 
+            println("[getInnertubePlayerResponse] Request payload: $requestBody")
+
             val response = client.post(url) {
                 header(HttpHeaders.UserAgent, clientType.userAgent)
                 header("Origin", "https://youtube.com")
@@ -97,15 +115,30 @@ class YouTubeClient(
                 setBody(requestBody.toString())
             }
 
-            println(response.bodyAsText())
+            val responseBody = try {
+                response.bodyAsText()
+            } catch (e: Exception) {
+                println("[getInnertubePlayerResponse] Content-Length mismatch or other error: ${e.message}")
+                null
+            }
+
+            if (responseBody == null) {
+                println("[getInnertubePlayerResponse] Failed to read response body.")
+                return null
+            }
+
+            println("[getInnertubePlayerResponse] HTTP Response: $responseBody")
 
             if (!response.status.isSuccess()) {
+                println("[getInnertubePlayerResponse] HTTP error: ${response.status.value}")
                 throw IllegalStateException("HTTP error: ${response.status.value}")
             }
 
-            val text = response.bodyAsText()
-            return json.decodeFromString<YoutubePlayerResponse>(text)
+            return json.decodeFromString<YoutubePlayerResponse>(responseBody).also {
+                println("[getInnertubePlayerResponse] Decoded response: $it")
+            }
         } catch (e: Exception) {
+            println("[getInnertubePlayerResponse] Exception occurred: ${e.message}")
             return null
         }
     }
@@ -117,7 +150,7 @@ class YouTubeClient(
      *   etc.
      */
     private fun extractVideoID(url: String): String? {
-        // Simplified regular expression to find patterns of 11 characters (YT ID).
+        println("[extractVideoID] Extracting video ID from URL: $url")
         val patterns = listOf(
             Regex("(?:v=|/)([0-9A-Za-z_-]{11})"),
             Regex("([0-9A-Za-z_-]{11})")
@@ -125,14 +158,16 @@ class YouTubeClient(
         for (pattern in patterns) {
             val match = pattern.find(url) ?: continue
             if (match.groups.size > 1) {
+                println("[extractVideoID] Match found: ${match.groupValues[1]}")
                 return match.groupValues[1]
             }
         }
-        // If not found, check if it's already a raw 11-char ID
+        println("[extractVideoID] No match found. Checking raw ID pattern.")
         return if (url.matches(Regex("^[0-9A-Za-z_-]{11}\$"))) url else null
     }
 
     fun close() {
+        println("[close] Closing HTTP client.")
         client.close()
     }
 }

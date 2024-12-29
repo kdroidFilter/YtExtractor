@@ -1,4 +1,3 @@
-import com.kdroid.ytextractor.models.VideoInfo
 import com.kdroid.ytextractor.YouTubeClient
 import kotlinx.coroutines.runBlocking
 
