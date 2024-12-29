@@ -1,7 +1,8 @@
 package com.kdroid.ytextractor
 
+import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.js.*
 
-actual val httpClientEngine: HttpClientEngine
-    get() = Js.create()
+actual fun getHttpClient() = HttpClient(Js) {
+}

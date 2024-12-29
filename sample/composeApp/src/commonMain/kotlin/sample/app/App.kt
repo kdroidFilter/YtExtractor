@@ -12,8 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.kdroid.ytextractor.VideoInfo
 import com.kdroid.ytextractor.YouTubeClient
+import com.kdroid.ytextractor.models.VideoInfo
 import kotlinx.coroutines.launch
 
 @Composable

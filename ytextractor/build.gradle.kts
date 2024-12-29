@@ -16,8 +16,12 @@ kotlin {
 
     androidTarget { publishLibraryVariants("release") }
     jvm()
-    js { browser() }
-    wasmJs { browser() }
+    js {
+        browser()
+    }
+    wasmJs {
+        browser()
+    }
     iosX64()
     iosArm64()
     iosSimulatorArm64()
@@ -27,56 +31,86 @@ kotlin {
     mingwX64()
 
     sourceSets {
+        // Dépendances communes à toutes les plateformes
         commonMain.dependencies {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.ktor.client.core)
-
+            api(libs.ktor.client.core)
         }
 
+        // Dépendances pour les tests communs
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
 
-        androidMain.dependencies {
-            implementation(libs.kotlinx.coroutines.android)
-            implementation(libs.ktor.client.cio)
-
+        // Configuration pour Android et JVM (partagent une configuration de base)
+        val androidJvmMain by creating {
+            dependsOn(commonMain.get()) // Hérite des dépendances de commonMain
+            dependencies {
+                api(libs.ktor.client.cio) // Client Ktor pour JVM et Android
+            }
         }
 
-        jvmMain.dependencies {
-            implementation(libs.kotlinx.coroutines.swing)
-            implementation(libs.ktor.client.cio)
-            implementation(libs.slf4j.simple)
-
-        }
-        jsMain.dependencies {
-            implementation(libs.ktor.client.js)
-
-        }
-        wasmJsMain.dependencies {
-            implementation(libs.ktor.client.js)
-
-        }
-        nativeMain.dependencies {
-            implementation(libs.ktor.client.cio)
-        }
-        linuxMain.dependencies {
-            implementation(libs.ktor.client.curl)
-
-        }
-        mingwMain.dependencies {
-            implementation(libs.ktor.client.winhttp)
-        }
-        macosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
-        }
-        iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
+        androidMain {
+            dependsOn(androidJvmMain) // Android hérite de androidJvmMain
+            dependencies {
+                implementation(libs.kotlinx.coroutines.android) // Coroutines spécifiques Android
+            }
         }
 
+        jvmMain {
+            dependsOn(androidJvmMain) // JVM hérite aussi de androidJvmMain
+            dependencies {
+                implementation(libs.kotlinx.coroutines.swing) // Support pour Swing
+                implementation(libs.slf4j.simple) // Logging simplifié pour JVM
+            }
+        }
 
+        // Configuration partagée entre JS et WASM
+        val jsWasmJsMain by creating {
+            dependsOn(commonMain.get())
+            dependencies {
+                api(libs.ktor.client.js) // Client Ktor pour JS et WASM
+            }
+        }
+        jsMain {
+            dependsOn(jsWasmJsMain)
+        }
+        wasmJsMain {
+            dependsOn(jsWasmJsMain)
+        }
+
+        // Dépendances spécifiques pour Linux
+        linuxX64Main.dependencies {
+            api(libs.ktor.client.curl) // Curl client pour Linux
+        }
+
+        // Dépendances spécifiques pour Windows
+        mingwX64Main.dependencies {
+            api(libs.ktor.client.winhttp) // WinHTTP client pour Windows
+        }
+
+        // Configuration partagée entre toutes les plateformes Apple
+        val appleMain by creating {
+            dependsOn(commonMain.get()) // Hérite des dépendances de commonMain
+            dependencies {
+                api(libs.ktor.client.darwin) // Client Ktor pour Darwin (macOS/iOS)
+            }
+        }
+
+        // Liste des cibles Apple pour simplifier la configuration
+        val appleTargets = listOf(
+            macosMain,
+            iosX64Main,
+            iosArm64Main,
+            iosSimulatorArm64Main,
+            macosX64Main,
+            macosArm64Main
+        )
+        appleTargets.forEach { target ->
+            kotlin.sourceSets.getByName(target.name).dependsOn(appleMain)
+        }
     }
 
     //https://kotlinlang.org/docs/native-objc-interop.html#export-of-kdoc-comments-to-generated-objective-c-headers
