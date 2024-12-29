@@ -6,9 +6,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextDecoration
+import kotlinx.browser.window
 
-val openInNewTab: (String) -> Unit = { url ->
-    js("window.open($url, '_blank')") as Unit
+fun openInNewTab(url: String) {
+    window.open(url, "_blank")
 }
 
 @Composable
