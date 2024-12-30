@@ -6,6 +6,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 import com.kdroid.ytextractor.extractors.uniquevideo.YoutubeVideoPlayerExtractor
 import kotlinx.browser.document
+import kotlinx.browser.window
 import sample.app.App
 import sample.app.screens.CorsErrorScreen
 import sample.app.screens.LoadingScreen
@@ -14,9 +15,12 @@ import sample.app.screens.LoadingScreen
 fun main() {
     val body = document.body ?: return
     ComposeViewport(body) {
-            LoadAppContent()
+        appLoaded()
+        LoadAppContent()
     }
 }
+
+external fun appLoaded()
 
 @Composable
 private fun LoadAppContent() {

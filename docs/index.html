@@ -1,12 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KotlinProject</title>
-    <link type="text/css" rel="stylesheet" href="styles.css">
-    <script type="application/javascript" src="composeApp.js"></script>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>YT Extractor</title>
+    <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
+    <div id="loader"><div class="spinner"></div></div>
+    <div id="app"></div>
 </body>
+
+<script>
+    // Function to hide the loader and show the app
+    function appLoaded() {
+        const loader = document.getElementById("loader");
+        const app = document.getElementById("app");
+        if (loader) loader.style.display = "none"; // Hide the loader
+        if (app) app.style.display = "block";     // Show the app
+        console.log("App is fully loaded!");
+    }
+</script>
+<footer>
+    <script type="application/javascript" src="composeApp.js"></script>
+</footer>
 </html>
