@@ -20,7 +20,6 @@ fun CorsErrorScreen() {
         Row {
             Text("CORS is not configured, fill the instruction in ")
             ClickableUrl("https://mitmachim.top/topic/78541/")
-
         }
 
     }

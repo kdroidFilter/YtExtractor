@@ -25,7 +25,7 @@ fun LoadAppContent() {
 
     LaunchedEffect(Unit) {
         isCorsConfigured.value = try {
-            YouTubeClient().getInnertubePlayerResponse("Ssj7WNqt7g")?.let {
+            YouTubeClient().getInnertubePlayerResponse("1oYBnj0cQVk")?.let {
                 true
             } ?: false
         } catch (e: Throwable) {
