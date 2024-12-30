@@ -23,7 +23,7 @@ import kotlinx.serialization.json.putJsonObject
  * @constructor Creates an instance of YouTubeClient with an optional HTTP
  *    client.
  */
-class VideoPlayerExtractor(
+class YoutubeVideoPlayerExtractor(
     val client: HttpClient = getHttpClient(),
     private val clientType: ClientType = ClientType.IOS
 ) {

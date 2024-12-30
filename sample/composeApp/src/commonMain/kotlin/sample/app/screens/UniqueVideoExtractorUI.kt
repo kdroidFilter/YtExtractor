@@ -10,7 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.kdroid.ytextractor.extractors.uniquevideo.VideoPlayerExtractor
+import com.kdroid.ytextractor.extractors.uniquevideo.YoutubeVideoPlayerExtractor
 import com.kdroid.ytextractor.extractors.uniquevideo.VideoInfo
 import kotlinx.coroutines.launch
 import sample.app.ClickableUrl
@@ -21,7 +21,7 @@ fun UniqueVideoExtractorUI() {
     var videoInfo by remember { mutableStateOf<VideoInfo?>(null) }
     var errorMessage by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
-    val client = remember { VideoPlayerExtractor() }
+    val client = remember { YoutubeVideoPlayerExtractor() }
 
     Column(
         modifier = Modifier

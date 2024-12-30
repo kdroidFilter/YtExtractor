@@ -11,7 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.kdroid.ytextractor.extractors.playlist.PlaylistExtractor
+import com.kdroid.ytextractor.extractors.playlist.YoutubePlaylistExtractor
 import com.kdroid.ytextractor.extractors.playlist.PlaylistInfo
 import kotlinx.coroutines.launch
 
@@ -21,7 +21,7 @@ fun PlaylistExtractorUI() {
     var playlistInfo by remember { mutableStateOf<PlaylistInfo?>(null) }
     var errorMessage by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
-    val client = remember { PlaylistExtractor() }
+    val client = remember { YoutubePlaylistExtractor() }
 
     Column(
         modifier = Modifier

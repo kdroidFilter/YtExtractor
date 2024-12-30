@@ -10,7 +10,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.serialization.json.*
 
-class PlaylistExtractor(
+class YoutubePlaylistExtractor(
     private val client: HttpClient = getHttpClient(),
     private val clientType: ClientType = ClientType.WEB
 ) {

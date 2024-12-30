@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
-import com.kdroid.ytextractor.extractors.uniquevideo.VideoPlayerExtractor
+import com.kdroid.ytextractor.extractors.uniquevideo.YoutubeVideoPlayerExtractor
 import kotlinx.browser.document
 import sample.app.App
 import sample.app.screens.CorsErrorScreen
@@ -25,7 +25,7 @@ private fun LoadAppContent() {
 
     LaunchedEffect(Unit) {
         isCorsConfigured.value = try {
-            VideoPlayerExtractor().getInnertubePlayerResponse("1oYBnj0cQVk")?.let {
+            YoutubeVideoPlayerExtractor().getInnertubePlayerResponse("1oYBnj0cQVk")?.let {
                 true
             } ?: false
         } catch (e: Throwable) {
