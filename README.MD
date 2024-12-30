@@ -24,7 +24,7 @@ Replace `<latest_version>` with the latest version available on [Maven Central](
 ## 🚀 Usage
 
 ### 🎵 Extract Playlist Information
-To extract playlist details, use the `PlaylistExtractor` class:
+To extract playlist details, use the `YoutubePlaylistExtractor` class:
 
 ```kotlin
 val client = YoutubePlaylistExtractor()
@@ -46,7 +46,7 @@ if (playlistInfo != null) {
 ```
 
 ### 🎥 Extract Video Information
-To extract video details and formats, use the `VideoPlayerExtractor` class:
+To extract video details and formats, use the `YoutubeVideoPlayerExtractor` class:
 
 ```kotlin
 val client = YoutubeVideoPlayerExtractor()
