@@ -2,112 +2,103 @@ package sample.app
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.kdroid.ytextractor.YouTubeClient
-import com.kdroid.ytextractor.models.VideoInfo
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
+import sample.app.screens.PlaylistExtractorUI
+import sample.app.screens.UniqueVideoExtractorUI
 
 @Composable
 fun App() {
-    Box(
+    Box (
         modifier = Modifier.fillMaxSize().background(Color.White),
         contentAlignment = Alignment.Center
     ) {
-        YouTubeExtractorUI()
+        NavigationDrawer()
     }
+
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun YouTubeExtractorUI() {
-    var youtubeUrl by remember { mutableStateOf("") }
-    var videoInfo by remember { mutableStateOf<VideoInfo?>(null) }
-    var errorMessage by remember { mutableStateOf("") }
-    val coroutineScope = rememberCoroutineScope()
-    val client = remember { YouTubeClient() }
+fun NavigationDrawer() {
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
-    Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .widthIn(max = 800.dp)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text(
-            text = "YouTube Video Info Extractor",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
+    var selectedScreen by remember { mutableStateOf("VideoExtractor") }
 
-        OutlinedTextField(
-            value = youtubeUrl,
-            onValueChange = { youtubeUrl = it },
-            label = { Text("Enter YouTube URL") },
-            modifier = Modifier.fillMaxWidth()
-        )
+    val screens = listOf("VideoExtractor", "PlaylistExtractor")
 
-        Button(
-            onClick = {
-                coroutineScope.launch {
-                    errorMessage = ""
-                    val info = client.getVideoFormats(youtubeUrl)
-                    if (info == null) {
-                        errorMessage = "Unable to retrieve video information."
-                        videoInfo = null
-                    } else {
-                        videoInfo = info
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "Youtube Extractor Demo",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                        textAlign = TextAlign.Center
+                    )
+
+                    screens.forEach { screen ->
+                        TextButton(
+                            onClick = {
+                                selectedScreen = screen
+                                scope.launch { drawerState.close() }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(
+                                text = screen,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Medium,
+                            )
+                        }
                     }
                 }
-            },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
-            Text("Get Video Info")
+            }
         }
-
-        if (errorMessage.isNotEmpty()) {
-            Text(
-                text = errorMessage,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-        }
-
-        videoInfo?.let { info ->
-            Text(
-                text = "Video Info:",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-            Text("Video ID: ${info.videoId}")
-            Text("Title: ${info.title}")
-            Text("Author: ${info.author}")
-            Text("Duration: ${info.durationSeconds} sec")
-            Text("Formats:")
-
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth()
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Menu") },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            scope.launch { drawerState.open() }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = "Menu"
+                            )
+                        }
+                    }
+                )
+            }
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
             ) {
-                info.formats.forEachIndexed { index, format ->
-                    item {
-                        Text("Itag: ${format.itag}")
-                    }
-                    item {
-                        Text("MimeType: ${format.mimeType}")
-                    }
-                    item {
-                        Text("QualityLabel: ${format.qualityLabel}")
-                    }
-                    item {
-                        ClickableUrl(format.url)
-                    }
+                when (selectedScreen) {
+                    "VideoExtractor" -> UniqueVideoExtractorUI()
+                    "PlaylistExtractor" -> PlaylistExtractorUI()
                 }
             }
         }

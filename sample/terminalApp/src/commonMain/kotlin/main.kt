@@ -1,9 +1,9 @@
-import com.kdroid.ytextractor.YouTubeClient
-import com.kdroid.ytextractor.models.VideoInfo
+import com.kdroid.ytextractor.extractors.uniquevideo.VideoPlayerExtractor
+import com.kdroid.ytextractor.extractors.uniquevideo.VideoInfo
 import kotlinx.coroutines.runBlocking
 
 fun main() {
-    val client = YouTubeClient()
+    val client = VideoPlayerExtractor()
 
     println("YouTube Video Info Extractor")
     print("Enter YouTube URL: ")

@@ -1,4 +1,4 @@
-package com.kdroid.ytextractor.models
+package com.kdroid.ytextractor.extractors.uniquevideo
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

@@ -1,7 +1,7 @@
-package com.kdroid.ytextractor
+package com.kdroid.ytextractor.config
 
-private val webKey = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
-private val appKey = "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w"
+internal val webKey = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+internal val appKey = "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w"
 
 enum class ClientType(
     val clientName: String,

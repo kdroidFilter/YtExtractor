@@ -78,19 +78,6 @@ kotlin {
         }
         jsMain {
             dependsOn(jsWasmJsMain)
-            dependencies {
-                api(npm("browserify-zlib", "0.2.0"))
-                api(npm("stream-browserify", "3.0.0"))
-                api(npm("crypto-browserify", "3.12.1"))
-                api(npm("stream-http", "3.2.0"))
-                api(npm("https-browserify", "1.0.0"))
-                api(npm("buffer", "6.0.3"))
-                api(npm("url", "0.11.4"))
-                api(npm("utf-8-validate", "5.0.7"))
-                api(npm("bufferutil", "4.0.7"))
-                api(npm("node-gyp-build", "4.8.4"))
-                api(npm("path-browserify", "1.0.1"))
-            }
         }
         wasmJsMain {
             dependsOn(jsWasmJsMain)

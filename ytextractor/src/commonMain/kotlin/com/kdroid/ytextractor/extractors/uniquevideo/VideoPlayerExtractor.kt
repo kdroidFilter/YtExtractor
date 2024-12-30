@@ -1,44 +1,39 @@
-package com.kdroid.ytextractor
+package com.kdroid.ytextractor.extractors.uniquevideo
 
-import com.kdroid.ytextractor.models.VideoInfo
-import com.kdroid.ytextractor.models.YoutubePlayerResponse
+import com.kdroid.ytextractor.config.ClientType
+import com.kdroid.ytextractor.config.json
+import com.kdroid.ytextractor.config.getHttpClient
+import com.kdroid.ytextractor.constant.API_BASE_URL
+import com.kdroid.ytextractor.constant.YOUTUBE_BASE_URL
+import com.kdroid.ytextractor.utils.buildClientContext
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonObject
 
-expect fun getHttpClient(): HttpClient
-
 /**
- * A client for interacting with YouTube to extract video information and formats.
+ * A client for interacting with YouTube to extract video information and
+ * formats.
  *
- * @constructor Creates an instance of YouTubeClient with an optional HTTP client.
- * @param client The HTTP client used to make requests. Defaults to an internal implementation.
+ * @param client The HTTP client used to make requests. Defaults to an
+ *    internal implementation.
+ * @constructor Creates an instance of YouTubeClient with an optional HTTP
+ *    client.
  */
-class YouTubeClient(
-    val client : HttpClient = getHttpClient(),
-    val clientType: ClientType = ClientType.IOS
+class VideoPlayerExtractor(
+    val client: HttpClient = getHttpClient(),
+    private val clientType: ClientType = ClientType.IOS
 ) {
-    private val json = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-        encodeDefaults = true
-    }
-
-    /**
-     * Retrieve the list of video formats (with URL) from a YouTube URL
-     */
+    /** Retrieve the list of video formats (with URL) from a YouTube URL */
     suspend fun getVideoFormats(youtubeUrl: String): VideoInfo? {
         println("[getVideoFormats] Start processing URL: $youtubeUrl")
         return try {
             // 1) Extract the ID
             val videoId = extractVideoID(youtubeUrl)
-            println("[getVideoFormats] Extracted video ID: $videoId")
-                ?: return null  // or generate a message / log, etc.
+            println("[getVideoFormats] Extracted video ID: $videoId")  // or generate a message / log, etc.
 
             // 2) Fetch the response via Innertube
             val playerResponse = videoId?.let { getInnertubePlayerResponse(it) }
@@ -66,7 +61,7 @@ class YouTubeClient(
             val durationSeconds = (videoDetails.lengthSeconds ?: "0").toLongOrNull() ?: 0L
             println("[getVideoFormats] Video duration: $durationSeconds seconds.")
 
-            (videoDetails.videoId ?: videoId)?.let {
+            (videoDetails.videoId ?: videoId).let {
                 VideoInfo(
                     videoId = it,
                     title = videoDetails.title ?: "Unknown title",
@@ -81,26 +76,26 @@ class YouTubeClient(
         }
     }
 
+
     /**
-     * Retrieve the playerResponse via the Innertube API (you can also try other endpoints).
-     * We send a JSON according to the Innertube protocol (clientName, clientVersion, etc.).
-     * We also add headers similar to the Go library, along with the CONSENT cookie.
+     * Retrieve the playerResponse via the Innertube API (you can also try
+     * other endpoints). We send a JSON according to the Innertube protocol
+     * (clientName, clientVersion, etc.). We also add headers similar to the Go
+     * library, along with the CONSENT cookie.
      */
-     suspend fun getInnertubePlayerResponse(videoId: String): YoutubePlayerResponse? {
+    suspend fun getInnertubePlayerResponse(videoId: String): YoutubePlayerResponse? {
         println("[getInnertubePlayerResponse] Start fetching player response for video ID: $videoId")
         try {
             val innertubeKey = clientType.apiKey
-            val url = "https://www.youtube.com/youtubei/v1/player?key=$innertubeKey"
+            val url = "${API_BASE_URL}/player?key=$innertubeKey"
 
             val requestBody = buildJsonObject {
                 put("videoId", videoId)
                 putJsonObject("context") {
                     putJsonObject("client") {
-                        put("clientName", clientType.clientName)
-                        put("clientVersion", clientType.clientVersion)
-                        clientType.androidSdkVersion?.let { put("androidSdkVersion", it) }
-                        clientType.deviceModel?.let { put("deviceModel", it) }
-                        put("userAgent", clientType.userAgent)
+                        buildClientContext(clientType).forEach { (key, value) ->
+                            put(key, value)
+                        }
                     }
                 }
             }
@@ -109,7 +104,7 @@ class YouTubeClient(
 
             val response = client.post(url) {
                 header(HttpHeaders.UserAgent, clientType.userAgent)
-                header("Origin", "https://youtube.com")
+                header("Origin", YOUTUBE_BASE_URL)
                 header("Sec-Fetch-Mode", "navigate")
                 header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                 setBody(requestBody.toString())
@@ -145,9 +140,8 @@ class YouTubeClient(
 
     /**
      * Attempt to extract the video ID from a URL such as:
-     *   https://www.youtube.com/watch?v=ABCDEFGHIJK
-     *   https://youtu.be/ABCDEFGHIJK
-     *   etc.
+     * https://www.youtube.com/watch?v=ABCDEFGHIJK https://youtu.be/ABCDEFGHIJK
+     * etc.
      */
     private fun extractVideoID(url: String): String? {
         println("[extractVideoID] Extracting video ID from URL: $url")

@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
-import com.kdroid.ytextractor.YouTubeClient
+import com.kdroid.ytextractor.extractors.uniquevideo.VideoPlayerExtractor
 import kotlinx.browser.document
 import sample.app.App
 import sample.app.screens.CorsErrorScreen
@@ -14,18 +14,18 @@ import sample.app.screens.LoadingScreen
 fun main() {
     val body = document.body ?: return
     ComposeViewport(body) {
-        LoadAppContent()
+            LoadAppContent()
     }
 }
 
 @Composable
-fun LoadAppContent() {
+private fun LoadAppContent() {
     val isCorsConfigured = remember { mutableStateOf(false) }
     val isLoading = remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         isCorsConfigured.value = try {
-            YouTubeClient().getInnertubePlayerResponse("1oYBnj0cQVk")?.let {
+            VideoPlayerExtractor().getInnertubePlayerResponse("1oYBnj0cQVk")?.let {
                 true
             } ?: false
         } catch (e: Throwable) {
