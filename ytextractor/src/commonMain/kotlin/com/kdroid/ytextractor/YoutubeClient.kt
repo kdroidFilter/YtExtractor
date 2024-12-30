@@ -86,10 +86,10 @@ class YouTubeClient(
      * We send a JSON according to the Innertube protocol (clientName, clientVersion, etc.).
      * We also add headers similar to the Go library, along with the CONSENT cookie.
      */
-    private suspend fun getInnertubePlayerResponse(videoId: String): YoutubePlayerResponse? {
+     suspend fun getInnertubePlayerResponse(videoId: String): YoutubePlayerResponse? {
         println("[getInnertubePlayerResponse] Start fetching player response for video ID: $videoId")
         try {
-            val innertubeKey = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+            val innertubeKey = clientType.apiKey
             val url = "https://www.youtube.com/youtubei/v1/player?key=$innertubeKey"
 
             val requestBody = buildJsonObject {

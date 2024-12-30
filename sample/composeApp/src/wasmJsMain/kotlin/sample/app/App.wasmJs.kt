@@ -19,7 +19,7 @@ actual fun ClickableUrl(url: String?) {
 
     if (url != null) {
         Text(
-            text = "URL: $formattedUrl",
+            text = formattedUrl,
             modifier = Modifier.clickable {
                 openInNewTab(url)
             },
@@ -32,3 +32,4 @@ actual fun ClickableUrl(url: String?) {
         Text("URL: Unavailable")
     }
 }
+
